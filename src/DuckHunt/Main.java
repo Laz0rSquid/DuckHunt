@@ -9,18 +9,18 @@ package DuckHunt;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-public class Main {
+public class Main  extends JFrame{
+    public static DuckHuntPanel game;
 
     public Main() {
-        JFrame frame = new JFrame();
-        frame.setTitle("Shape Clicker");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
+        setTitle("Duck Hunt");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
 
-        initComponents(frame);
+        initComponents(this);
 
-        frame.pack();
-        frame.setVisible(true);
+        pack();
+        setVisible(true);
     }
 
     public static void main(String[] args) {
@@ -35,6 +35,7 @@ public class Main {
     }
 
     private void initComponents(JFrame frame) {
-        frame.add(new DuckHuntPanel());
+        game = new DuckHuntPanel();
+        frame.add(game);
     }
 }

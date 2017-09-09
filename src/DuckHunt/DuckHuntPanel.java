@@ -43,7 +43,7 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
     private static int lives = 10;
 
     // spawns a target each X frames
-    private static final int SPAWN_RATE = 150;
+    private static final int SPAWN_RATE = 180;
 
     private final static double TARGET_SIZE = 50;
 
@@ -66,8 +66,11 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
     // location for remaining lives print
     private static final Point LIVES_LOCATION = new Point(10, 40);
     private static final String LIVES_NAME = "Lives : ";
+    
+    public static boolean isRunning;
 
     public DuckHuntPanel() {
+        isRunning = true;
         setBackground(Color.BLACK);
         topLane = new ArrayList<>();
         middleLane = new ArrayList<>();
@@ -90,9 +93,11 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
             Target t = target.next();
             if (t.getShape().contains(me.getPoint())) {
                 if (t.isDuck) {
-                    score++;
+                    score += 100;
+                } else if (score > 0) {
+                    score -= 100;
                 } else {
-                    score--;
+                    lives--;
                 }
                 target.remove();
             }
@@ -129,6 +134,7 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
                             TARGET_SIZE,
                             false));
         }
+        checkLoss();
         repaint();
     }
 
@@ -179,5 +185,11 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         update();
+    }
+
+    private void checkLoss() {
+        if (lives < 1) {
+            isRunning = false;
+        }
     }
 }
