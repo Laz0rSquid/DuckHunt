@@ -16,6 +16,7 @@ public class Target {
     public boolean isDuck;
     public Ellipse2D shape;
     public boolean goesLeft;
+    public static final int MOVEMENT_SPEED = 1;
 
     /*
     logic needed for three lanes of targets. new balls will be randomly
@@ -38,14 +39,20 @@ public class Target {
         this.goesLeft = goesLeft;
     }
 
+    // default move method, calls specific method with MOVEMENT_SPEED
     public void move() {
+        move(MOVEMENT_SPEED);
+    }
+    
+    // specific move method, can be called via parameter
+    public void move(int moveBy) {
         if (this.goesLeft) {
-            this.shape.setFrame(this.shape.getX() - 1,
+            this.shape.setFrame(this.shape.getX() - moveBy,
                     this.shape.getY(),
                     this.shape.getWidth(),
                     this.shape.getHeight());
         } else {
-            this.shape.setFrame(this.shape.getX() + 1,
+            this.shape.setFrame(this.shape.getX() + moveBy,
                     this.shape.getY(),
                     this.shape.getWidth(),
                     this.shape.getHeight());

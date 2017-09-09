@@ -28,7 +28,7 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
 
     private static final Dimension DIM = new Dimension(600, 600);
 
-    // Prototype for saving targets
+    // Saving targets
     private ArrayList<Target> topLane;
     private ArrayList<Target> middleLane;
     private ArrayList<Target> bottomLane;
@@ -38,6 +38,9 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
 
     // timer
     private static int frameCount = 0;
+    
+    // number of lives
+    private static int lives = 10;
 
     // spawns a target each X frames
     private static final int SPAWN_RATE = 150;
@@ -48,13 +51,21 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
     private final static double LEFT_BORDER = -TARGET_SIZE;
     private final static double RIGHT_BORDER = (TARGET_SIZE / 2) + DIM.getWidth();
 
-    // spawn location
+    // spawn locations
     private final static Point SPAWN_TOP = new Point((int) -TARGET_SIZE, (int) DIM.getWidth() / 4);
     private final static Point SPAWN_MIDDLE = new Point((int) ((int) DIM.getHeight() + TARGET_SIZE), (int) DIM.getWidth() / 2);
     private final static Point SPAWN_BOTTOM = new Point((int) -TARGET_SIZE, (int) ( DIM.getWidth() / 4) * 3);
-
+    
     // font
-    Font font = new Font(Font.DIALOG, Font.BOLD, 36);
+    Font font = new Font(Font.DIALOG, Font.BOLD, 18);
+    
+    // location for score print
+    private static final Point SCORE_LOCATION = new Point(10, 20);
+    private static final String SCORE_NAME = "Score : ";
+    
+    // location for remaining lives print
+    private static final Point LIVES_LOCATION = new Point(10, 40);
+    private static final String LIVES_NAME = "Lives : ";
 
     public DuckHuntPanel() {
         setBackground(Color.BLACK);
@@ -87,7 +98,7 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
             }
         }
     }
-
+    
     public void update() {
         frameCount++;
 
@@ -127,6 +138,9 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
             t.move();
             if (t.isOutsideScreen(LEFT_BORDER, RIGHT_BORDER)) {
                 target.remove();
+                if (t.isDuck) {
+                    lives--;
+                }
             }
         }
     }
@@ -142,7 +156,8 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
 
         g2d.setColor(Color.WHITE);
         g2d.setFont(font);
-        g2d.drawString(String.valueOf(score), 10, 40);
+        g2d.drawString(SCORE_NAME + String.valueOf(score), SCORE_LOCATION.x, SCORE_LOCATION.y);
+        g2d.drawString(LIVES_NAME + String.valueOf(lives), LIVES_LOCATION.x, LIVES_LOCATION.y);
     }
 
     private static void drawTargets(Graphics2D g2d, ArrayList<Target> lane) {
