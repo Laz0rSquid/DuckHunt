@@ -7,10 +7,12 @@ package DuckHunt;
  * @author Marcus Kopp <marcus.kopp86 at gmail.com>
  */
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-public class Main  extends JFrame{
-    public static DuckHuntPanel game;
+public class Main extends JFrame implements LossInterface {
+
+    public DuckHuntPanel game;
 
     public Main() {
         setTitle("Duck Hunt");
@@ -35,7 +37,20 @@ public class Main  extends JFrame{
     }
 
     private void initComponents(JFrame frame) {
-        game = new DuckHuntPanel();
+        game = new DuckHuntPanel(this);
         frame.add(game);
+    }
+
+    @Override
+    public void onLossAction() {
+        JOptionPane.showMessageDialog(this,
+                "You reached "
+                        + game.getScore()
+                        + " points."
+                        + System.lineSeparator()
+                        + "Congratulation!",
+                "END GAME",
+                JOptionPane.INFORMATION_MESSAGE);
+        game.resetAttributes(this);
     }
 }

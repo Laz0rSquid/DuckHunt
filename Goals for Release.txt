@@ -2,5 +2,5 @@
 - Targets durch JPEGs ersetzen
 - Soundeffekte
 - Temposteigerung nach X (Bedingung ausarbeiten), Anzeige als Level
-- Verlustbedingung, danach nächste Runde ohne Programmneustart
-- Highscore-Liste in Datei
+________ Verlustbedingung, danach nächste Runde ohne Programmneustart
+________ Highscore-Liste in Datei

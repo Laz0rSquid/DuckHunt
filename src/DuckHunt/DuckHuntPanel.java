@@ -15,8 +15,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -26,55 +35,75 @@ import javax.swing.Timer;
  */
 public class DuckHuntPanel extends JPanel implements ActionListener {
 
-    private static final Dimension DIM = new Dimension(600, 600);
+    private static final int WINDOW_SIZE = 600;
 
     // Saving targets
     private ArrayList<Target> topLane;
     private ArrayList<Target> middleLane;
     private ArrayList<Target> bottomLane;
 
-    // player score
-    private static int score = 0;
-
-    // timer
-    private static int frameCount = 0;
-    
-    // number of lives
-    private static int lives = 10;
-
     // spawns a target each X frames
     private static final int SPAWN_RATE = 180;
 
-    private final static double TARGET_SIZE = 50;
+    private final static int TARGET_SIZE = 50;
 
     // used to calculate where to delete targets
     private final static double LEFT_BORDER = -TARGET_SIZE;
-    private final static double RIGHT_BORDER = (TARGET_SIZE / 2) + DIM.getWidth();
+    private final static double RIGHT_BORDER = (TARGET_SIZE / 2) + WINDOW_SIZE;
 
     // spawn locations
-    private final static Point SPAWN_TOP = new Point((int) -TARGET_SIZE, (int) DIM.getWidth() / 4);
-    private final static Point SPAWN_MIDDLE = new Point((int) ((int) DIM.getHeight() + TARGET_SIZE), (int) DIM.getWidth() / 2);
-    private final static Point SPAWN_BOTTOM = new Point((int) -TARGET_SIZE, (int) ( DIM.getWidth() / 4) * 3);
-    
+    private final static Point SPAWN_TOP = new Point(-TARGET_SIZE, WINDOW_SIZE / 4);
+    private final static Point SPAWN_MIDDLE = new Point(WINDOW_SIZE + TARGET_SIZE, WINDOW_SIZE / 2);
+    private final static Point SPAWN_BOTTOM = new Point(-TARGET_SIZE, (WINDOW_SIZE / 4) * 3);
+
     // font
-    Font font = new Font(Font.DIALOG, Font.BOLD, 18);
-    
+    private Font font = new Font(Font.DIALOG, Font.BOLD, 18);
+
     // location for score print
     private static final Point SCORE_LOCATION = new Point(10, 20);
     private static final String SCORE_NAME = "Score : ";
-    
+
+    // player score
+    private int score;
+
     // location for remaining lives print
     private static final Point LIVES_LOCATION = new Point(10, 40);
     private static final String LIVES_NAME = "Lives : ";
-    
-    public static boolean isRunning;
 
-    public DuckHuntPanel() {
-        isRunning = true;
-        setBackground(Color.BLACK);
-        topLane = new ArrayList<>();
-        middleLane = new ArrayList<>();
-        bottomLane = new ArrayList<>();
+    // number of lives
+    private static final int MAX_LIVES = 5;
+    private int livesLost;
+
+    // location for remaining lives print
+    private static final Point HS_LOCATION = new Point(300, 20);
+    private static final String HS_NAME = "Highscore : ";
+
+    // all time high score
+    private int highscore;
+
+    // location for saving highscore
+    private static final String PATH_TO_HS = "." + File.separator + "res" + File.separator + "highscore.txt";
+
+// boolean for stopping the programm
+    private boolean isRunning;
+
+    // callback
+    private LossInterface loss;
+
+    // timer
+    private int frameCount;
+
+    // base unit for score keeping
+    private static final int BASE_SCORE_UNIT = 100;
+
+    /**
+     * constructor for content of game window
+     *
+     * @param li - used for callback to Main()
+     * @throws java.io.FileNotFoundException
+     */
+    public DuckHuntPanel(LossInterface li) throws FileNotFoundException {
+        resetAttributes(li);
         Timer timer = new Timer(1000 / 60, (ActionListener) this);
         timer.start();
         addMouseListener(new MouseAdapter() {
@@ -88,28 +117,71 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
         });
     }
 
-    private static void checkForHits(ArrayList<Target> lane, MouseEvent me) {
+    /**
+     * Cleans constructor of unnecessary clutter, improves readability
+     *
+     * @param li
+     */
+    public void resetAttributes(LossInterface li) {
+        try {
+            initHighscore();
+        } catch (IOException ex) {
+            Logger.getLogger(DuckHuntPanel.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        score = 0;
+        frameCount = 0;
+        livesLost = 0;
+        isRunning = true;
+        setBackground(Color.BLACK);
+        loss = li;
+        topLane = new ArrayList<>();
+        middleLane = new ArrayList<>();
+        bottomLane = new ArrayList<>();
+    }
+
+    private void initHighscore() throws IOException {
+        File f = getHighscoreFile();
+        Path path = Paths.get(f.getPath());
+        String hs = new String(Files.readAllBytes(path), "UTF-8");
+        if (hs.isEmpty()) {
+            highscore = 0;
+        } else {
+            highscore = Integer.parseInt(hs);
+        }
+    }
+
+    private File getHighscoreFile() throws IOException {
+        File f = new File(PATH_TO_HS);
+        f.getParentFile().mkdirs();
+        f.createNewFile();
+        return f;
+    }
+
+    private void checkForHits(ArrayList<Target> lane, MouseEvent me) {
         for (Iterator<Target> target = lane.iterator(); target.hasNext();) {
             Target t = target.next();
             if (t.getShape().contains(me.getPoint())) {
                 if (t.isDuck) {
-                    score += 100;
+                    score += BASE_SCORE_UNIT;
                 } else if (score > 0) {
-                    score -= 100;
+                    score -= BASE_SCORE_UNIT;
                 } else {
-                    lives--;
+                    livesLost++;
                 }
                 target.remove();
             }
         }
     }
-    
+
     public void update() {
+        if (!isRunning) {
+            return;
+        }
         frameCount++;
 
-        removeTargetsOutsideScreen(topLane);
-        removeTargetsOutsideScreen(middleLane);
-        removeTargetsOutsideScreen(bottomLane);
+        moveTargets(topLane);
+        moveTargets(middleLane);
+        moveTargets(bottomLane);
 
         if (frameCount % SPAWN_RATE == 0) {
             topLane.add(
@@ -134,18 +206,20 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
                             TARGET_SIZE,
                             false));
         }
-        checkLoss();
+        if (livesLost >= MAX_LIVES) {
+            postGameCleanUp();
+        }
         repaint();
     }
 
-    private static void removeTargetsOutsideScreen(ArrayList<Target> lane) {
+    private void moveTargets(ArrayList<Target> lane) {
         for (Iterator<Target> target = lane.iterator(); target.hasNext();) {
             Target t = target.next();
             t.move();
             if (t.isOutsideScreen(LEFT_BORDER, RIGHT_BORDER)) {
                 target.remove();
                 if (t.isDuck) {
-                    lives--;
+                    livesLost++;
                 }
             }
         }
@@ -162,11 +236,18 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
 
         g2d.setColor(Color.WHITE);
         g2d.setFont(font);
-        g2d.drawString(SCORE_NAME + String.valueOf(score), SCORE_LOCATION.x, SCORE_LOCATION.y);
-        g2d.drawString(LIVES_NAME + String.valueOf(lives), LIVES_LOCATION.x, LIVES_LOCATION.y);
+        g2d.drawString(SCORE_NAME + String.valueOf(score),
+                SCORE_LOCATION.x,
+                SCORE_LOCATION.y);
+        g2d.drawString(LIVES_NAME + String.valueOf(MAX_LIVES - livesLost),
+                LIVES_LOCATION.x,
+                LIVES_LOCATION.y);
+        g2d.drawString(HS_NAME + String.valueOf(highscore),
+                HS_LOCATION.x,
+                HS_LOCATION.y);
     }
 
-    private static void drawTargets(Graphics2D g2d, ArrayList<Target> lane) {
+    private void drawTargets(Graphics2D g2d, ArrayList<Target> lane) {
         for (Target t : lane) {
             if (t.isDuck) {
                 g2d.setColor(Color.MAGENTA);
@@ -179,7 +260,7 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
 
     @Override
     public Dimension getPreferredSize() {
-        return DIM;
+        return new Dimension(WINDOW_SIZE, WINDOW_SIZE);
     }
 
     @Override
@@ -187,9 +268,27 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
         update();
     }
 
-    private void checkLoss() {
-        if (lives < 1) {
-            isRunning = false;
+    private void postGameCleanUp() {
+        isRunning = false;
+        if (score > highscore) {
+            File f;
+            try {
+                f = getHighscoreFile();
+                FileWriter fileWriter = new FileWriter(f);
+                String newHighscore = String.valueOf(score);
+                System.out.println(newHighscore);
+                fileWriter.write(newHighscore);
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException ex) {
+                Logger.getLogger(DuckHuntPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
+        loss.onLossAction();
+    }
+
+    public int getScore() {
+        return score;
     }
 }
