@@ -6,6 +6,9 @@ package DuckHunt;
 /**
  * @author Marcus Kopp <marcus.kopp86 at gmail.com>
  */
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -37,8 +40,12 @@ public class Main extends JFrame implements LossInterface {
     }
 
     private void initComponents(JFrame frame) {
-        game = new DuckHuntPanel(this);
-        frame.add(game);
+        try {
+            game = new DuckHuntPanel(this);
+            frame.add(game);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override

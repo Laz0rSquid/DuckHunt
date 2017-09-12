@@ -274,12 +274,12 @@ public class DuckHuntPanel extends JPanel implements ActionListener {
             File f;
             try {
                 f = getHighscoreFile();
-                FileWriter fileWriter = new FileWriter(f);
+                FileWriter fw = new FileWriter(f);
                 String newHighscore = String.valueOf(score);
                 System.out.println(newHighscore);
-                fileWriter.write(newHighscore);
-                fileWriter.flush();
-                fileWriter.close();
+                fw.write(newHighscore);
+                fw.flush();
+                fw.close();
             } catch (IOException ex) {
                 Logger.getLogger(DuckHuntPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
