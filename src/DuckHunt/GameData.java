@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+>>>>>>> 5e50875e0116ef170af6df460f4a51ff271091a6
 package DuckHunt;
 
 import java.awt.Font;
