@@ -17,6 +17,8 @@ public class Target {
 	public Ellipse2D shape;
 	public boolean goesLeft;
 	public static final int MOVEMENT_SPEED = 1;
+	static final int DUCK_SIZE = 60;
+	static final int NON_DUCK_SIZE = 40;
 
 	/*
     logic needed for three lanes of targets. new balls will be randomly
@@ -29,13 +31,17 @@ public class Target {
 	 *
 	 * @param x
 	 * @param y
-	 * @param height
-	 * @param width
 	 * @param goesLeft
 	 */
-	public Target(double x, double y, double height, double width, boolean goesLeft) {
-		this.shape = new Ellipse2D.Double(x, y - (height / 2), height, width);
+	public Target(double x, double y, boolean goesLeft) {
 		this.isDuck = Math.random() < 0.7;
+		int size;
+		if (this.isDuck) {
+			size = DUCK_SIZE;
+		} else {
+			size = NON_DUCK_SIZE;
+		}
+		this.shape = new Ellipse2D.Double(x, y - (size / 2), size, size);
 		this.goesLeft = goesLeft;
 	}
 
