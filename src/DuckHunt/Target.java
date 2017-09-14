@@ -18,6 +18,7 @@ public class Target {
 	
 	static final int DUCK_SIZE = 60;
 	
+
 	static final int NON_DUCK_SIZE = 40;
 
 	/**
