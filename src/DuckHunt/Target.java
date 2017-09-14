@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package DuckHunt;
 
 import java.awt.geom.Ellipse2D;
@@ -14,28 +9,32 @@ import java.awt.geom.Ellipse2D;
 public class Target {
 
 	public boolean isDuck;
+	
 	public Ellipse2D shape;
+	
 	public boolean goesLeft;
+	
 	public static final int MOVEMENT_SPEED = 1;
+	
+	static final int DUCK_SIZE = 60;
+	
+	static final int NON_DUCK_SIZE = 40;
 
-	/*
-    logic needed for three lanes of targets. new balls will be randomly
-    assigned to one of the three lanes. the movement goes like this:
-    Lane 1 : to the right
-    Lane 2 : to the left
-    Lane 3 : to the right
-	 */
 	/**
 	 *
 	 * @param x
 	 * @param y
-	 * @param height
-	 * @param width
 	 * @param goesLeft
 	 */
-	public Target(double x, double y, double height, double width, boolean goesLeft) {
-		this.shape = new Ellipse2D.Double(x, y - (height / 2), height, width);
+	public Target(double x, double y, boolean goesLeft) {
 		this.isDuck = Math.random() < 0.7;
+		int size;
+		if (this.isDuck) {
+			size = DUCK_SIZE;
+		} else {
+			size = NON_DUCK_SIZE;
+		}
+		this.shape = new Ellipse2D.Double(x, y - (size / 2), size, size);
 		this.goesLeft = goesLeft;
 	}
 

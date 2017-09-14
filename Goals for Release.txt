@@ -1,6 +1,6 @@
-- Targets verschieden groß
+_________ Targets verschieden groß
 - Targets durch JPEGs ersetzen
 - Soundeffekte
-- Temposteigerung nach X (Bedingung ausarbeiten), Anzeige als Level
+________ Temposteigerung nach X (Bedingung ausarbeiten), Anzeige als Level
 ________ Verlustbedingung, danach nächste Runde ohne Programmneustart
 ________ Highscore-Liste in Datei

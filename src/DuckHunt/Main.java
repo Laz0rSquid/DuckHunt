@@ -1,6 +1,3 @@
-/**
- *
- */
 package DuckHunt;
 
 /**
@@ -15,7 +12,7 @@ import javax.swing.SwingUtilities;
 
 public class Main extends JFrame implements LossInterface {
 
-	public DuckHuntPanel game;
+	public DuckHuntGame game;
 
 	public Main() {
 		setTitle("Duck Hunt");
@@ -41,7 +38,7 @@ public class Main extends JFrame implements LossInterface {
 
 	private void initComponents(JFrame frame) {
 		try {
-			game = new DuckHuntPanel(this);
+			game = new DuckHuntGame(this);
 			frame.add(game);
 		} catch (FileNotFoundException ex) {
 			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
