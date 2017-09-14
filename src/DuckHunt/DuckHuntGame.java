@@ -188,7 +188,6 @@ public class DuckHuntGame extends GameData implements ActionListener {
 		g2d.drawString(LVL_NAME + String.valueOf(level),
 			LVL_LOCATION.x,
 			LVL_LOCATION.y);
-		g2d.drawString(String.valueOf(gameSpeed), 10, 60);
 	}
 
 	private void drawTargets(Graphics2D g2d, ArrayList<Target> lane) {
