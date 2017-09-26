@@ -8,7 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.Timer;
 
 /**
@@ -26,9 +29,11 @@ import javax.swing.Timer;
  * @author Marcus Kopp <marcus.kopp86 at gmail.com>
  */
 public class DuckHuntGame extends GameData implements ActionListener {
-	
+
 	/**
-	 * interface as parameter is used for callbacks, allowing Main() to restart the game
+	 * interface as parameter is used for callbacks, allowing Main() to restart
+	 * the game
+	 *
 	 * @param li - used for callback to Main()
 	 * @throws java.io.FileNotFoundException
 	 */
@@ -48,8 +53,8 @@ public class DuckHuntGame extends GameData implements ActionListener {
 	}
 
 	/**
-	 * Helper method. Unclutters constructor of unnecessary clutter, improves readability,
-	 * code can be reused for restarting the game.
+	 * Helper method. Unclutters constructor of unnecessary clutter, improves
+	 * readability, code can be reused for restarting the game.
 	 *
 	 * @param li
 	 */
@@ -113,7 +118,7 @@ public class DuckHuntGame extends GameData implements ActionListener {
 		}
 		// prevents frameCount from overflowing
 		frameCount = frameCount % Integer.MAX_VALUE;
-		
+
 		frameCount++;
 
 		moveTargets(topLane);
@@ -150,7 +155,6 @@ public class DuckHuntGame extends GameData implements ActionListener {
 		}
 		repaint();
 	}
-
 
 	private void moveTargets(ArrayList<Target> lane) {
 		for (Iterator<Target> target = lane.iterator(); target.hasNext();) {
@@ -192,12 +196,20 @@ public class DuckHuntGame extends GameData implements ActionListener {
 
 	private void drawTargets(Graphics2D g2d, ArrayList<Target> lane) {
 		for (Target t : lane) {
-			if (t.isDuck) {
-				g2d.setColor(Color.MAGENTA);
-			} else {
-				g2d.setColor(Color.CYAN);
-			}
 			g2d.fill(t.getShape());
+			File input;
+			if (t.isDuck) {
+				input = new File("." + File.separator + "res" + File.separator + "duck.png");
+			} else {
+				input = new File("." + File.separator + "res" + File.separator + "devil.png");
+			}
+			try {
+				FileInputStream fis = new FileInputStream(input);
+				BufferedImage image = ImageIO.read(fis);
+				g2d.drawImage(image, (int) t.getShape().getX(), (int) t.getShape().getY(), this);
+			} catch (Exception e) {
+				Logger.getLogger(DuckHuntGame.class.getName()).log(Level.SEVERE, null, e);
+			}
 		}
 	}
 
@@ -219,7 +231,6 @@ public class DuckHuntGame extends GameData implements ActionListener {
 				f = getHighscoreFile();
 				FileWriter fw = new FileWriter(f);
 				String newHighscore = String.valueOf(score);
-				System.out.println(newHighscore);
 				fw.write(newHighscore);
 				fw.flush();
 				fw.close();

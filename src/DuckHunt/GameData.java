@@ -80,7 +80,7 @@ abstract class GameData extends JPanel {
 	static final String PATHHS = "." + File.separator + "res" + File.separator + "highscore.txt";
 
 	// base multiplier for score keeping
-	static final int BASE_SCORE_UNIT = 1000;
+	static final int BASE_SCORE_UNIT = 100;
 	
 	// boolean for stopping the programm
 	boolean isRunning;
