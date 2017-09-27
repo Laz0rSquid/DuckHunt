@@ -1,5 +1,7 @@
 package DuckHunt;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -14,6 +16,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -73,7 +77,7 @@ public class DuckHuntGame extends GameData implements ActionListener {
 		topLane = new ArrayList<>();
 		middleLane = new ArrayList<>();
 		bottomLane = new ArrayList<>();
-		gameSpeed = 60;
+		gameSpeed = 45;
 		level = 1;
 		lastLevelUp = 0;
 	}
