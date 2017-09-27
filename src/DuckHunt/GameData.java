@@ -2,7 +2,6 @@ package DuckHunt;
 
 import java.awt.Font;
 import java.awt.Point;
-import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -58,12 +57,7 @@ abstract class GameData extends JPanel {
 	static final String HS_NAME = "Highscore : ";
 	int highscore;
 	
-	/**
-	 * speed increase is currently not implemented
-	 */
-	
 	int gameSpeed;
-	
 	
 	// level location
 	static final Point LVL_LOCATION = new Point(300, 40);
@@ -72,13 +66,9 @@ abstract class GameData extends JPanel {
 	int level;
 
 	// score value at which game speed is increase
-	static final int SPEED_BUMP = 100;
+	static final int SPEED_BUMP = 1000;
 	static final int SPEED_INCREMENT = 6;
 	
-	
-	// location for saving highscore
-	static final String PATHHS = "." + File.separator + "res" + File.separator + "highscore.txt";
-
 	// base multiplier for score keeping
 	static final int BASE_SCORE_UNIT = 100;
 	

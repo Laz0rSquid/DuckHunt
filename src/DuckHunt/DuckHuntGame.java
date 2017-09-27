@@ -1,7 +1,5 @@
 package DuckHunt;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -11,21 +9,27 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.Timer;
 
 /**
@@ -49,6 +53,7 @@ public class DuckHuntGame extends GameData implements ActionListener {
 			@Override
 			public void mouseClicked(MouseEvent me) {
 				super.mouseClicked(me);
+				playSound(Sound.GUNFIRE);
 				checkForHits(topLane, me);
 				checkForHits(middleLane, me);
 				checkForHits(bottomLane, me);
@@ -77,15 +82,15 @@ public class DuckHuntGame extends GameData implements ActionListener {
 		topLane = new ArrayList<>();
 		middleLane = new ArrayList<>();
 		bottomLane = new ArrayList<>();
-		gameSpeed = 45;
+		gameSpeed = 60;
 		level = 1;
 		lastLevelUp = 0;
 	}
 
 	private void initHighscore() throws IOException {
-		File f = getHighscoreFile();
-		Path path = Paths.get(f.getPath());
-		String hs = new String(Files.readAllBytes(path), "UTF-8");
+		InputStream highscoreInput = getClass().getClassLoader().getResourceAsStream("res/highscore.txt");
+		String hs = new BufferedReader(new InputStreamReader(highscoreInput)).lines()
+			.collect(Collectors.joining(System.lineSeparator()));
 		if (hs.isEmpty()) {
 			highscore = 0;
 		} else {
@@ -93,24 +98,19 @@ public class DuckHuntGame extends GameData implements ActionListener {
 		}
 	}
 
-	private File getHighscoreFile() throws IOException {
-		File f = new File(PATHHS);
-		f.getParentFile().mkdirs();
-		f.createNewFile();
-		return f;
-	}
-
 	private void checkForHits(ArrayList<Target> lane, MouseEvent me) {
 		for (Iterator<Target> target = lane.iterator(); target.hasNext();) {
 			Target t = target.next();
 			if (t.getShape().contains(me.getPoint())) {
+				Sound sound = null;
 				if (t.isDuck) {
 					score += BASE_SCORE_UNIT;
+					sound = Sound.DUCK;
 				} else if (score > 0) {
 					score -= BASE_SCORE_UNIT;
-				} else {
-					livesLost++;
+					sound = Sound.DEVIL;
 				}
+				playSound(sound);
 				target.remove();
 			}
 		}
@@ -198,18 +198,38 @@ public class DuckHuntGame extends GameData implements ActionListener {
 			LVL_LOCATION.y);
 	}
 
+	private void playSound(Sound sound) {
+		InputStream input = new BufferedInputStream(getClass().getClassLoader()
+			.getResourceAsStream(sound.getPath()));
+		try {
+			AudioInputStream audioIn = AudioSystem.getAudioInputStream(input);
+			AudioFormat format = audioIn.getFormat();
+			DataLine.Info info = new DataLine.Info(Clip.class, format);
+			Clip clip = (Clip) AudioSystem.getLine(info);
+			clip.open(audioIn);
+			clip.start();
+			audioIn.close();
+			input.close();
+		} catch (UnsupportedAudioFileException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (LineUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void drawTargets(Graphics2D g2d, ArrayList<Target> lane) {
 		for (Target t : lane) {
 			g2d.fill(t.getShape());
-			File input;
+			InputStream input;
 			if (t.isDuck) {
-				input = new File("." + File.separator + "res" + File.separator + "duck.png");
+				input = getClass().getClassLoader().getResourceAsStream("res/duck.png");
 			} else {
-				input = new File("." + File.separator + "res" + File.separator + "devil.png");
+				input = getClass().getClassLoader().getResourceAsStream("res/devil.png");
 			}
 			try {
-				FileInputStream fis = new FileInputStream(input);
-				BufferedImage image = ImageIO.read(fis);
+				BufferedImage image = ImageIO.read(input);
 				g2d.drawImage(image, (int) t.getShape().getX(), (int) t.getShape().getY(), this);
 			} catch (Exception e) {
 				Logger.getLogger(DuckHuntGame.class.getName()).log(Level.SEVERE, null, e);
@@ -232,7 +252,7 @@ public class DuckHuntGame extends GameData implements ActionListener {
 		if (score > highscore) {
 			File f;
 			try {
-				f = getHighscoreFile();
+				f = new File(getClass().getClassLoader().getResource("res/highscore.txt").getFile());
 				FileWriter fw = new FileWriter(f);
 				String newHighscore = String.valueOf(score);
 				fw.write(newHighscore);
@@ -243,6 +263,7 @@ public class DuckHuntGame extends GameData implements ActionListener {
 			}
 
 		}
+		playSound(Sound.ENDGAME);
 		loss.onLossAction();
 	}
 
